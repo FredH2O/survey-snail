@@ -5,7 +5,7 @@ const QuestionInput = forwardRef(({ label, value, onChange, onNext }, ref) => {
   return (
     <Box>
       <TextField
-        ref={ref}
+        inputRef={ref}
         label={label}
         value={value}
         onChange={onChange}
@@ -18,7 +18,7 @@ const QuestionInput = forwardRef(({ label, value, onChange, onNext }, ref) => {
           type="button"
           onClick={onNext}
           variant="outlined"
-          sx={{ mt: "10px" }}
+          sx={{ mt: "5px", mb: "10px" }}
         >
           Next
         </Button>
