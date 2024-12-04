@@ -1,5 +1,5 @@
-import { useRef, useState } from "react";
-import { Button, Box, Typography, Modal } from "@mui/material";
+import { useState } from "react";
+import { Button, Box, Typography, Modal, Pagination } from "@mui/material";
 import QuestionInput from "./QuestionInput";
 
 const AppForm = () => {
@@ -16,18 +16,7 @@ const AppForm = () => {
   });
 
   const [open, setOpen] = useState(false);
-
-  const questionRefs = [
-    useRef(),
-    useRef(),
-    useRef(),
-    useRef(),
-    useRef(),
-    useRef(),
-    useRef(),
-    useRef(),
-    useRef(),
-  ];
+  const [currentPage, setCurrentPage] = useState(1);
 
   const questionsArray = [
     "What is your name?",
@@ -42,24 +31,27 @@ const AppForm = () => {
     "What hobby or skill would you like to learn?",
   ];
 
+  const questionPerPage = 3;
+  const totalPages = Math.ceil(questionsArray.length / questionPerPage);
+
   const handleClose = () => {
     setOpen(false);
-  };
-
-  const handleNext = (cIndex) => {
-    if (cIndex < questionRefs.length - 1) {
-      questionRefs[cIndex + 1].current.focus();
-    }
-  };
-
-  const updateAnswer = (key, value) => {
-    setAnswers((p) => ({ ...p, [key]: value }));
   };
 
   const handleSub = (e) => {
     e.preventDefault();
     console.log("Answers submitted!", answers);
     setOpen(true);
+  };
+
+  // Get the questions to display for the current page
+  const currentQuestions = questionsArray.slice(
+    (currentPage - 1) * questionPerPage,
+    currentPage * questionPerPage
+  );
+
+  const handlePageChange = (event, value) => {
+    setCurrentPage(value);
   };
 
   return (
@@ -102,26 +94,50 @@ const AppForm = () => {
           </Box>
 
           <form onSubmit={handleSub}>
-            {questionsArray.map((question, index) => (
+            {currentQuestions.map((question, index) => (
               <QuestionInput
-                value={answers[`question${index + 1}`]}
+                value={
+                  answers[
+                    `question${index + 1 + (currentPage - 1) * questionPerPage}`
+                  ]
+                }
                 key={index}
                 label={question}
-                ref={questionRefs[index]}
                 onChange={(event) =>
-                  updateAnswer(`question${index + 1}`, event.target.value)
+                  setAnswers((prev) => ({
+                    ...prev,
+                    [`question${
+                      index + 1 + (currentPage - 1) * questionPerPage
+                    }`]: event.target.value,
+                  }))
                 }
-                onNext={() => handleNext(index)}
                 type="text"
               />
             ))}
 
-            <Button type="submit" variant="contained" sx={{ mt: 2 }}>
-              Submit
-            </Button>
+            <Box
+              sx={{ display: "flex", justifyContent: "space-between", mt: 2 }}
+            >
+              <Button type="submit" variant="contained">
+                Submit
+              </Button>
+            </Box>
           </form>
+
+          {/* Pagination using MUI Pagination Component */}
+          <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
+            <Pagination
+              count={totalPages}
+              page={currentPage}
+              onChange={handlePageChange}
+              variant="outlined"
+              shape="rounded"
+              color="primary"
+            />
+          </Box>
         </Box>
       </Box>
+
       <Modal
         open={open}
         sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}
